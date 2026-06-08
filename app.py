@@ -1,7 +1,7 @@
 import streamlit as st
 from google import genai
 
-# 1. CONFIGURACIÓN ESTÉTICA NATIVA PARA GOOGLE SITES
+# 1. CONFIGURACIÓN ESTÉTICA NATIVA Y PARCHE DE UX (CURSOR MANITO)
 st.set_page_config(page_title="sebastIAn", page_icon="🤖", layout="wide")
 
 st.markdown("""
@@ -10,6 +10,11 @@ st.markdown("""
         footer {visibility: hidden;}
         header {visibility: hidden;}
         .block-container {padding-top: 1rem; padding-bottom: 1rem;}
+        
+        /* Fuerza el cursor de "manito" en los selectores y elementos interactivos */
+        div[data-baseweb="select"] {cursor: pointer !important;}
+        div[role="button"] {cursor: pointer !important;}
+        .stSelectbox label {cursor: pointer !important;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -22,13 +27,37 @@ except Exception as e:
     st.error("Falta configurar la GEMINI_API_KEY en los Secrets de Streamlit.")
     st.stop()
 
-# 3. BASE DE DATOS DE RECURSOS Y GEMS EXCLUSIVAS
+# 3. BASE DE DATOS DE RECURSOS Y GEMS ACTUALIZADA
 RECURSOS_GEMS = (
     "- **🤖 Gem de Gamificación (Para Docentes):** [Acceder a la Gem](https://gemini.google.com/gem/1H9vlS8Tn53PBWYqiP0q0rgLmjhfb4KYg?usp=sharing) -> Herramienta diseñada para estructurar mecánicas de juego, sistemas de motivación y ludificación educativa.\n"
     "- **🚀 Partner (Para Alumnos):** [Acceder a Partner](https://gemini.google.com/gem/1o1HH3I1IAH_NwGLpajjQ_nF_DWJXEVti?usp=sharing) -> Tu compañero de estudio interactivo para guiarte en las materias del taller."
 )
 
-# 4. DICCIONARIO DE INSTRUCCIONES DE SISTEMA (BACKEND RE-ESTRUCTURADO)
+# 4. PROPUESTAS DE ACCIÓN SUGERIDAS (UX PARA EVITAR PANTALLA EN BLANCO)
+SUGERENCIAS_PERFIL = {
+    "🎓 Alumno": [
+        "¿Cómo puedo empezar a programar un juego interactivo?",
+        "No me sale un bloque de código, ¿me ayudás a encontrar el error?",
+        "¿De qué se trata la herramienta 'Partner' para estudiar?"
+    ],
+    "🍎 Docente": [
+        "¿Cómo puedo usar tu Gem de Gamificación para una clase de tecnología?",
+        "Tirame ideas para automatizar una planilla de notas con Apps Script.",
+        "Sugerime una dinámica integradora para el próximo espacio EMI."
+    ],
+    "💼 Órbita GOED": [
+        "¿Qué criterios pedagógicos digitales priorizamos en el acompañamiento situado?",
+        "Estructurame una propuesta breve para la articulación técnico-pedagógica del taller.",
+        "¿Cómo optimizar el uso de hardware recuperado en proyectos FPD?"
+    ],
+    "🌐 Visitante": [
+        "¿Qué proyectos de arqueología tecnológica o deconstrucción de hardware tenés?",
+        "¿Qué modificaciones o reparaciones recomendás para una bici de trekking?",
+        "Contame de qué se trata este espacio 'Profe Colombo Juegos'."
+    ]
+}
+
+# 5. DICCIONARIO DE INSTRUCCIONES DE SISTEMA
 INSTRUCCIONES_PERFIL = {
     "🎓 Alumno": (
         "Tu nombre es sebastIAn. Sos el tutor virtual y asistente de laboratorio del Profe Colombo en el ámbito escolar de CABA. "
@@ -66,11 +95,10 @@ INSTRUCCIONES_PERFIL = {
     )
 }
 
-# 5. INTERFAZ DE USUARIO: EL GANCHO (UX)
+# 6. INTERFAZ DE USUARIO
 st.title("🤖 sebastIAn")
 st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
 
-# Menú desplegable para que el usuario elija su perfil
 perfil_seleccionado = st.selectbox(
     "Para comenzar a chatear, seleccioná tu perfil:",
     list(INSTRUCCIONES_PERFIL.keys())
@@ -78,11 +106,9 @@ perfil_seleccionado = st.selectbox(
 
 st.write("---")
 
-# Si el perfil cambia, reiniciamos el chat para aplicar el chip correcto
+# Inicialización o cambio de perfil
 if "ultimo_perfil" not in st.session_state or st.session_state.ultimo_perfil != perfil_seleccionado:
     st.session_state.ultimo_perfil = perfil_seleccionado
-    
-    # Inyectamos el prompt maestro dinámico junto con el conocimiento de las Gems
     instruccion_completa = INSTRUCCIONES_PERFIL[perfil_seleccionado] + f"\n\nRecursos disponibles que podés recomendar si es pertinente:\n{RECURSOS_GEMS}"
     
     st.session_state.chat = st.session_state.client.chats.create(
@@ -91,7 +117,14 @@ if "ultimo_perfil" not in st.session_state or st.session_state.ultimo_perfil != 
     )
     st.session_state.messages = []
 
-# 6. RENDERIZADO DEL CHAT
+# MOSTRAR ENLACES DE PROPUESTAS DE ACCIÓN EN PANTALLA
+st.markdown("💡 **Preguntas sugeridas para este perfil (copiá y pegá abajo si querés):**")
+for sugerencia in SUGERENCIAS_PERFIL[perfil_seleccionado]:
+    st.markdown(f"- *\"{sugerencia}\"*")
+
+st.write("---")
+
+# 7. RENDERIZADO DEL CHAT
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
