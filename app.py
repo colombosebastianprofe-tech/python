@@ -107,20 +107,57 @@ with col_titulo:
     st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
 
 with col_clima:
-    # Widget estilo reporte limpio (Tipografía moderna y sin fondos raros)
-    html_clima = """
-    <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden;">
-        <a class="weatherwidget-io" href="https://forecast7.com/es/n3461_5838/buenos-aires/" 
-           data-label_1="BUENOS AIRES" data-label_2="Clima" data-font="Arial" data-icons="Stickers" 
-           data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="#ffffff" 
-           data-highcolor="#ff9800" data-lowcolor="#00decb" data-days="1" style="pointer-events: none;">
-        </a>
-        <script>
-        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-        </script>
+    import datetime
+    import requests
+
+    # 1. Inicializamos las variables en la memoria del servidor si no existen
+    if "clima_temperatura" not in st.session_state:
+        st.session_state.clima_temperatura = "--"
+        st.session_state.clima_icono = "🤖"
+        st.session_state.clima_proxima_actualizacion = datetime.datetime.min
+
+    hora_actual = datetime.datetime.now()
+
+    # 2. Si el temporizador expiró, actualizamos el dato en segundo plano
+    if hora_actual > st.session_state.clima_proxima_actualizacion:
+        try:
+            # Consultamos el clima de Buenos Aires en formato JSON plano
+            response = requests.get("https://wttr.in/Buenos_Aires?format=j1", timeout=3)
+            if response.status_code == 200:
+                data = response.json()
+                # Extraemos la temperatura actual y el código del estado
+                temp = data["current_condition"][0]["temp_C"]
+                clima_texto = data["current_condition"][0]["weatherDesc"][0]["value"].lower()
+                
+                st.session_state.clima_temperatura = f"{temp}°C"
+                
+                # Mapeo casero: asignamos un emoji clásico según lo que devuelva el servidor
+                if "sunny" in clima_texto or "clear" in clima_texto:
+                    st.session_state.clima_icono = "☀️"
+                elif "cloud" in clima_texto or "overcast" in clima_texto:
+                    st.session_state.clima_icono = "☁️"
+                elif "rain" in clima_texto or "drizzle" in clima_texto:
+                    st.session_state.clima_icono = "🌧️"
+                elif "snow" in clima_texto:
+                    st.session_state.clima_icono = "❄️"
+                else:
+                    st.session_state.clima_icono = "⛅"
+                
+                # Fijamos la próxima actualización para dentro de 1 hora (60 minutos)
+                st.session_state.clima_proxima_actualizacion = hora_actual + datetime.timedelta(minutes=60)
+        except:
+            # Si el servicio falla de fondo, mantiene el último dato guardado sin interrumpir la app
+            pass
+
+    # 3. Dibujamos el widget casero con HTML minimalista usando el dato en caché
+    html_casero = f"""
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; font-family: Arial, sans-serif; color: white;">
+        <span style="font-size: 32px; line-height: 1;">{st.session_state.clima_icono}</span>
+        <span style="font-size: 20px; font-weight: bold; margin-top: 4px;">{st.session_state.clima_temperatura}</span>
+        <span style="font-size: 11px; color: #888888; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;">CABA</span>
     </div>
     """
-    st.components.v1.html(html_clima, height=100)
+    st.components.v1.html(html_casero, height=100)
 
 perfil_seleccionado = st.selectbox(
     "Para comenzar a chatear, seleccioná tu perfil:",
