@@ -122,7 +122,7 @@ with col_clima:
     if hora_actual > st.session_state.clima_proxima_actualizacion:
         try:
             # Consultamos el clima de Buenos Aires en formato JSON plano
-            response = requests.get("https://wttr.in/Buenos_Aires?format=j1", timeout=3)
+            response = requests.get("https://wttr.in/Buenos_Aires,Argentina?format=j1", timeout=3)
             if response.status_code == 200:
                 data = response.json()
                 # Extraemos la temperatura actual y el código del estado
