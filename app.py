@@ -103,8 +103,6 @@ with col_titulo:
     st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
 
 with col_clima:
-    # Código embebido de widget de clima minimalista para Buenos Aires (150x150)
-   with col_clima:
     # Nuevo widget de clima responsivo, minimalista y con soporte HTTPS para CABA
     html_clima = """
     <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden;">
@@ -121,21 +119,11 @@ with col_clima:
     """
     st.components.v1.html(html_clima, height=100)
 
-# Inicialización o cambio de perfil
-if "ultimo_perfil" not in st.session_state or st.session_state.ultimo_perfil != perfil_seleccionado:
-    st.session_state.ultimo_perfil = perfil_seleccionado
-    instruccion_completa = INSTRUCCIONES_PERFIL[perfil_seleccionado] + f"\n\nRecursos disponibles que podés recomendar si es pertinente:\n{RECURSOS_GEMS}"
-    
-    st.session_state.chat = st.session_state.client.chats.create(
-        model="gemini-2.5-flash",
-        config={'system_instruction': instruccion_completa}
-    )
-    st.session_state.messages = []
-
-# MOSTRAR ENLACES DE PROPUESTAS DE ACCIÓN EN PANTALLA
-st.markdown("💡 **Preguntas sugeridas para este perfil (copiá y pegá abajo si querés):**")
-for sugerencia in SUGERENCIAS_PERFIL[perfil_seleccionado]:
-    st.markdown(f"- *\"{sugerencia}\"*")
+# ESTA LÍNEA ES LA CLAVE: Tiene que estar contra el margen izquierdo, sin espacios antes
+perfil_seleccionado = st.selectbox(
+    "Para comenzar a chatear, seleccioná tu perfil:",
+    list(INSTRUCCIONES_PERFIL.keys())
+)
 
 st.write("---")
 
