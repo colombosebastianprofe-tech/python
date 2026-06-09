@@ -107,12 +107,17 @@ with col_titulo:
     st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
 
 with col_clima:
-    # Widget de mapa en vivo de CABA (Infalible ante bloqueos de seguridad de Google)
+    # Widget estilo reporte limpio (Tipografía moderna y sin fondos raros)
     html_clima = """
-    <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden; border-radius: 8px;">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d52543.12353140685!2d-58.4370824!3d-34.6037389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sar!4v1710000000000!5m2!1ses-419!2sar" 
-                width="150" height="90" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
+    <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden;">
+        <a class="weatherwidget-io" href="https://forecast7.com/es/n3461_5838/buenos-aires/" 
+           data-label_1="BUENOS AIRES" data-label_2="Clima" data-font="Arial" data-icons="Stickers" 
+           data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="#ffffff" 
+           data-highcolor="#ff9800" data-lowcolor="#00decb" data-days="1" style="pointer-events: none;">
+        </a>
+        <script>
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+        </script>
     </div>
     """
     st.components.v1.html(html_clima, height=100)
