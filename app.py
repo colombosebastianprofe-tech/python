@@ -104,21 +104,22 @@ with col_titulo:
 
 with col_clima:
     # Código embebido de widget de clima minimalista para Buenos Aires (150x150)
+   with col_clima:
+    # Nuevo widget de clima responsivo, minimalista y con soporte HTTPS para CABA
     html_clima = """
-    <div style="display: flex; justify-content: center; align-items: center; height: 100px;">
-        <iframe src="https://www.meteored.com.ar/wwidget.php?id=17332&c=vertical&t=1&n=0&p=0" 
-                width="150" height="100" frameborder="0" scrolling="no" style="border:none; overflow:hidden;">
-        </iframe>
+    <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden;">
+        <a class="weatherwidget-io" href="https://forecast7.com/es/n3461_5838/buenos-aires/" 
+           data-label_1="BUENOS AIRES" data-label_2="CABA" data-font="Roboto" data-icons="Climacons" 
+           data-theme="pure" data-basecolor="rgba(255, 255, 255, 0)" data-accent="rgba(255, 255, 255, 0)" 
+           data-textcolor="#ffffff" data-highcolor="#ff5722" data-lowcolor="#00bcd4" data-days="1" >
+           CABA Clima
+        </a>
+        <script>
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+        </script>
     </div>
     """
-    st.components.v1.html(html_clima, height=110)
-
-perfil_seleccionado = st.selectbox(
-    "Para comenzar a chatear, seleccioná tu perfil:",
-    list(INSTRUCCIONES_PERFIL.keys())
-)
-
-st.write("---")
+    st.components.v1.html(html_clima, height=100)
 
 # Inicialización o cambio de perfil
 if "ultimo_perfil" not in st.session_state or st.session_state.ultimo_perfil != perfil_seleccionado:
