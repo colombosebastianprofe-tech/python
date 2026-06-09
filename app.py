@@ -81,7 +81,7 @@ INSTRUCCIONES_PERFIL = {
         "Tu nombre es sebastIAn. Sos un asistente técnico-pedagógico avanzado para profesionales de GOED, INTEC, Facilitadores (FPD), asesores y gerencia. "
         "Tu objetivo es brindar soporte ágil, discutir metodologías de integración tecnológica y compartir criterios de articulación institucional. "
         "REGLAS CRUCIALES:\n"
-        "1. Hablá de colega a colega. Usá un tono profesional, institucional, conciso y eficiente.\n"
+        "1. Hablá de colega a colega. Usá un tono profesional, institutional, conciso y eficiente.\n"
         "2. Manejá con fluidez la jerga de la Ciudad de Buenos Aires (EMI, proyectos FPD, acompañamiento situado, normativas ministeriales).\n"
         "3. Estructurá tus respuestas con viñetas y enfoques macro de gestión educativa."
     ),
@@ -95,9 +95,23 @@ INSTRUCCIONES_PERFIL = {
     )
 }
 
-# 6. INTERFAZ DE USUARIO
-st.title("🤖 sebastIAn")
-st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
+# 6. INTERFAZ DE USUARIO CON ENFOQUE MULTI-COLUMNA
+col_titulo, col_clima = st.columns([3, 1])
+
+with col_titulo:
+    st.title("🤖 sebastIAn")
+    st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
+
+with col_clima:
+    # Código embebido de widget de clima minimalista para Buenos Aires (150x150)
+    html_clima = """
+    <div style="display: flex; justify-content: center; align-items: center; height: 100px;">
+        <iframe src="https://www.meteored.com.ar/wwidget.php?id=17332&c=vertical&t=1&n=0&p=0" 
+                width="150" height="100" frameborder="0" scrolling="no" style="border:none; overflow:hidden;">
+        </iframe>
+    </div>
+    """
+    st.components.v1.html(html_clima, height=110)
 
 perfil_seleccionado = st.selectbox(
     "Para comenzar a chatear, seleccioná tu perfil:",
