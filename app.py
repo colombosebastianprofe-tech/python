@@ -27,6 +27,10 @@ except Exception as e:
     st.error("Falta configurar la GEMINI_API_KEY en los Secrets de Streamlit.")
     st.stop()
 
+# PARCHE CRUCIAL: Aseguramos que la lista de mensajes exista desde el milisegundo cero
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
 # 3. BASE DE DATOS DE RECURSOS Y GEMS ACTUALIZADA
 RECURSOS_GEMS = (
     "- **🤖 Gem de Gamificación (Para Docentes):** [Acceder a la Gem](https://gemini.google.com/gem/1H9vlS8Tn53PBWYqiP0q0rgLmjhfb4KYg?usp=sharing) -> Herramienta diseñada para estructurar mecánicas de juego, sistemas de motivación y ludificación educativa.\n"
@@ -81,7 +85,7 @@ INSTRUCCIONES_PERFIL = {
         "Tu nombre es sebastIAn. Sos un asistente técnico-pedagógico avanzado para profesionales de GOED, INTEC, Facilitadores (FPD), asesores y gerencia. "
         "Tu objetivo es brindar soporte ágil, discutir metodologías de integración tecnológica y compartir criterios de articulación institucional. "
         "REGLAS CRUCIALES:\n"
-        "1. Hablá de colega a colega. Usá un tono profesional, institutional, conciso y eficiente.\n"
+        "1. Hablá de colega a colega. Usá un tono profesional, institucional, conciso y eficiente.\n"
         "2. Manejá con fluidez la jerga de la Ciudad de Buenos Aires (EMI, proyectos FPD, acompañamiento situado, normativas ministeriales).\n"
         "3. Estructurá tus respuestas con viñetas y enfoques macro de gestión educativa."
     ),
@@ -103,7 +107,6 @@ with col_titulo:
     st.caption("Asistente Pedagógico Digital - Conexión Online (CABA)")
 
 with col_clima:
-    # Nuevo widget de clima responsivo, minimalista y con soporte HTTPS para CABA
     html_clima = """
     <div style="display: flex; justify-content: center; align-items: center; height: 90px; overflow: hidden;">
         <a class="weatherwidget-io" href="https://forecast7.com/es/n3461_5838/buenos-aires/" 
@@ -119,7 +122,6 @@ with col_clima:
     """
     st.components.v1.html(html_clima, height=100)
 
-# ESTA LÍNEA ES LA CLAVE: Tiene que estar contra el margen izquierdo, sin espacios antes
 perfil_seleccionado = st.selectbox(
     "Para comenzar a chatear, seleccioná tu perfil:",
     list(INSTRUCCIONES_PERFIL.keys())
@@ -127,7 +129,25 @@ perfil_seleccionado = st.selectbox(
 
 st.write("---")
 
-# 7. RENDERIZADO DEL CHAT
+# Inicialización o cambio de perfil (Control de Backend del Agente)
+if "ultimo_perfil" not in st.session_state or st.session_state.ultimo_perfil != perfil_seleccionado:
+    st.session_state.ultimo_perfil = perfil_seleccionado
+    instruccion_completa = INSTRUCCIONES_PERFIL[perfil_seleccionado] + f"\n\nRecursos disponibles que podés recomendar si es pertinente:\n{RECURSOS_GEMS}"
+    
+    st.session_state.chat = st.session_state.client.chats.create(
+        model="gemini-2.5-flash",
+        config={'system_instruction': instruccion_completa}
+    )
+    st.session_state.messages = []  # Se limpia solo si cambia el perfil de usuario
+
+# MOSTRAR ENLACES DE PROPUESTAS DE ACCIÓN EN PANTALLA
+st.markdown("💡 **Preguntas sugeridas para este perfil (copiá y pegá abajo si querés):**")
+for sugerencia in SUGERENCIAS_PERFIL[perfil_seleccionado]:
+    st.markdown(f"- *\"{sugerencia}\"*")
+
+st.write("---")
+
+# 7. RENDERIZADO DEL CHAT (Ahora seguro, ya que 'messages' existe sí o sí)
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
